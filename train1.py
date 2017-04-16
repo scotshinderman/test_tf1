@@ -34,13 +34,13 @@ def bytes_feature(values):
 
 
 def float_feature(values):
-  return tf.train.Feature(float_list=tf.train.FloatList(value=values))
+  return tf.train.Feature(float_list = tf.train.FloatList(value=values))
 
 
 def _image_to_tfexample(image_data, width, height, paramList):
   example = tf.train.Example(features=tf.train.Features(feature={
-      'image/encoded': bytes_feature(image_data),
-      'image/paramList': float_feature(paramList),
+      'paramList': float_feature(paramList),    
+      'image/raw': bytes_feature(image_data),
       'image/width': int64_feature(width),
       'image/height': int64_feature(height)}))  
   return example
@@ -92,12 +92,51 @@ def _build1(output_filename, numParams, numImages, width, height):
             tfrecord_writer.write(example.SerializeToString())
 
 
+            
+def testReadExample(filename):
+
+  with tf.Graph().as_default():
+
+    with tf.Session('') as sess:
+  
+      filename_queue = tf.train.string_input_producer([filename])
+      reader = tf.TFRecordReader()
+
+      tf.train.start_queue_runners(sess)
+      
+      for i in range(0, 10):
+        print( "read record:" + str(i))
+        
+        _, serialized_example = reader.read(filename_queue)
+  
+        features = tf.parse_single_example(
+          serialized_example,
+          features={
+            #'paramList': tf.FixedLenFeature([], tf.float32),        
+            'image/raw': tf.FixedLenFeature([], tf.string),
+            'image/width': tf.FixedLenFeature([], tf.int64),
+            'image/height': tf.FixedLenFeature([], tf.int64),
+          })
+
+        image = tf.decode_raw(features['image/raw'], tf.uint8)
+        height = tf.cast(features['image/height'], tf.int64)
+        width = tf.cast(features['image/width'], tf.int64)
+      
+        print( width.eval() )
+        print( height.eval() )
+  
+            
+    
 if __name__ == '__main__':
-    output_filename = 'test1.records'
+    filename = 'test1.records'
     width, height = 200, 200
     numParams = 10
     numImages = 50
-    
-    _build1(output_filename, numParams, numImages, width, height)
-    
+
+    #print( 'Building ...' )
+    #_build1(filename, numParams, numImages, width, height)
+
+
+    print ('Reading back...')
+    testReadExample( filename )
             
