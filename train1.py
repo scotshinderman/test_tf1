@@ -102,8 +102,10 @@ def testReadExample(filename):
       filename_queue = tf.train.string_input_producer([filename])
       reader = tf.TFRecordReader()
 
+
       tf.train.start_queue_runners(sess)
       
+
       for i in range(0, 10):
         print( "read record:" + str(i))
         
@@ -112,6 +114,7 @@ def testReadExample(filename):
         features = tf.parse_single_example(
           serialized_example,
           features={
+
             #'paramList': tf.FixedLenFeature([], tf.float32),        
             'image/raw': tf.FixedLenFeature([], tf.string),
             'image/width': tf.FixedLenFeature([], tf.int64),
@@ -122,6 +125,7 @@ def testReadExample(filename):
         height = tf.cast(features['image/height'], tf.int64)
         width = tf.cast(features['image/width'], tf.int64)
       
+
         print( width.eval() )
         print( height.eval() )
   
