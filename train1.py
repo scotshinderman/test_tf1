@@ -7,14 +7,6 @@ import tensorflow as tf
 
 
 def int64_feature(values):
-  """Returns a TF-Feature of int64s.
-
-  Args:
-    values: A scalar or list of values.
-
-  Returns:
-    a TF-Feature.
-  """
   if not isinstance(values, (tuple, list)):
     values = [values]
     
@@ -22,14 +14,6 @@ def int64_feature(values):
 
 
 def bytes_feature(values):
-  """Returns a TF-Feature of bytes.
-
-  Args:
-    values: A string.
-
-  Returns:
-    a TF-Feature.
-  """
   return tf.train.Feature(bytes_list=tf.train.BytesList(value=[values]))
 
 
@@ -49,7 +33,7 @@ def _image_to_tfexample(image_data, width, height, paramList):
 
 def _create_paramList(numParams):
     """Returns numParams floats in range[0,1) as numpy.ndarray"""
-    paramList = np.random.random_sample(numParams)
+    paramList = np.random.random_sample( numParams )
     return paramList
 
 
@@ -114,8 +98,7 @@ def testReadExample(filename):
         features = tf.parse_single_example(
           serialized_example,
           features={
-
-            #'paramList': tf.FixedLenFeature([], tf.float32),        
+            'paramList': tf.FixedLenFeature([10], tf.float32),        
             'image/raw': tf.FixedLenFeature([], tf.string),
             'image/width': tf.FixedLenFeature([], tf.int64),
             'image/height': tf.FixedLenFeature([], tf.int64),
@@ -124,10 +107,11 @@ def testReadExample(filename):
         image = tf.decode_raw(features['image/raw'], tf.uint8)
         height = tf.cast(features['image/height'], tf.int64)
         width = tf.cast(features['image/width'], tf.int64)
-      
-
+        paramList = features['paramList']
+        
         print( width.eval() )
         print( height.eval() )
+        print( paramList.eval() )
   
             
     
